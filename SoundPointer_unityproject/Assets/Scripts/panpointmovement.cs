@@ -54,6 +54,10 @@ public class panpointmovement : MonoBehaviour {
 	public Toggle aziele; //Toggle of the spherical values
 	private bool cartesian = false; //Bool check for cartesian or spherical values
 
+	[Header ("Settings")]
+
+	private int xNum, yNum, zNum, aNum, eNum;
+
 	/* TO DO -- Receive data back from Reaper
 	public Vector3 reapcoord;
 	private bool receivedmsg = false;
@@ -296,12 +300,13 @@ public class panpointmovement : MonoBehaviour {
 
 	//Create address string to send to Reaper depending on the track number and fx position number of this cursor
 	private void UpdateAdresses(){
-		addressYaw = string.Format ("/track/{0}/fx/{1}/fxparam/1/value", trackNumber.ToString (), fxChainPosition.ToString ());
-		addressPitch = string.Format ("/track/{0}/fx/{1}/fxparam/2/value", trackNumber.ToString (), fxChainPosition.ToString ());
-		addressX = string.Format ("/track/{0}/fx/{1}/fxparam/1/value", trackNumber.ToString (), fxChainPosition.ToString ());
-		addressY = string.Format ("/track/{0}/fx/{1}/fxparam/2/value", trackNumber.ToString (), fxChainPosition.ToString ());
-		addressZ = string.Format ("/track/{0}/fx/{1}/fxparam/3/value", trackNumber.ToString (), fxChainPosition.ToString ());
+		addressYaw = string.Format ("/track/{0}/fx/{1}/fxparam/{2}/value", trackNumber.ToString (), fxChainPosition.ToString (),manager.aNum.ToString());
+		addressPitch = string.Format ("/track/{0}/fx/{1}/fxparam/{2}/value", trackNumber.ToString (), fxChainPosition.ToString (),manager.eNum.ToString());
+		addressX = string.Format ("/track/{0}/fx/{1}/fxparam/{2}/value", trackNumber.ToString (), fxChainPosition.ToString (),manager.xNum.ToString());
+		addressY = string.Format ("/track/{0}/fx/{1}/fxparam/{2}/value", trackNumber.ToString (), fxChainPosition.ToString (),manager.yNum.ToString());
+		addressZ = string.Format ("/track/{0}/fx/{1}/fxparam/{2}/value", trackNumber.ToString (), fxChainPosition.ToString (),manager.zNum.ToString());
 	}
+
 
 
 	/* TO DO -- Receive data back from Reaper

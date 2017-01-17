@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityOSC;
 using System.Linq;
+using System.Net;
 
 
 //Pan cursor creation and management class
@@ -25,7 +26,13 @@ public class pancreation : MonoBehaviour {
 	public int maxYaw, maxPitch; //Max panning yaw and pitch
 	public InputField pitchinput, yawinput; //Input fields for max yaw and max pitch
 
-	private Vector3 camPos;
+	private Vector3 camPos;//Position of the camera
+
+	[Header ("Settings")]
+
+	public GameObject settingsPane;//Settings Menu panel
+	public InputField OSCPortf, xNumf, yNumf, zNumf, aNumf, eNumf; //Settings input fiels
+	public int OSCPort, xNum, yNum, zNum, aNum, eNum; //Settings values
 
 
 	// Use this for initialization
@@ -40,6 +47,13 @@ public class pancreation : MonoBehaviour {
 		maxYaw = 180;
 		maxPitch = 180;
 
+		//Show default values for settings
+		OSCPortf.text = "8004";
+		xNumf.text = "1";
+		yNumf.text = "2";
+		zNumf.text = "3";
+		aNumf.text = "1";
+		eNumf.text = "2";
 
 	}
 	
@@ -54,59 +68,73 @@ public class pancreation : MonoBehaviour {
 		camPos.z = -500;
 		Camera.main.orthographicSize = Screen.height / 2;
 		Camera.main.transform.position = camPos;
+
+		//Check keyboard input for settings panel
+
+		if (settingsPane.activeInHierarchy) {
+			if (Input.GetKeyDown (KeyCode.Return)) {
+				AcceptSettings ();
+			} else if (Input.GetKeyDown (KeyCode.Escape)) {
+				CancelSettings ();
+			}
+		}
 	}
 
 	//Creation of a new pan cursor
 	public void CreateNewPan (){
-		//Instantiate a new toggle
-		GameObject toggle = Instantiate (togglePrefab);
-		toggle.transform.SetParent (toggleParent);
-		//Instantiate a new cursor
-		GameObject cursor = Instantiate (cursorPrefab);
-		cursor.transform.SetParent (cursorParent);
+		//Check that the menu isn't open
+		if (!settingsPane.activeInHierarchy) {
 
-		//Place the toggle on the screen
-		toggle.transform.localPosition = new Vector3 (-10 + (60 * (number%12)), 26.6f - (30 *(Mathf.Floor(number/12))), 0.0f);
-		//Place the cursor in the middle of the screen
-		cursor.transform.position = new Vector3 (Screen.width / 2, Screen.height / 2, 0.0f);
+			//Instantiate a new toggle
+			GameObject toggle = Instantiate (togglePrefab);
+			toggle.transform.SetParent (toggleParent);
+			//Instantiate a new cursor
+			GameObject cursor = Instantiate (cursorPrefab);
+			cursor.transform.SetParent (cursorParent);
 
-		//Get toggle component in the gameobject 
-		Toggle _toggle = toggle.GetComponent<Toggle> ();
-		//Assign toggle to its group (only one active at a time)
-		_toggle.group = toggleGroup;
+			//Place the toggle on the screen
+			toggle.transform.localPosition = new Vector3 (-10 + (60 * (number % 12)), 26.6f - (30 * (Mathf.Floor (number / 12))), 0.0f);
+			//Place the cursor in the middle of the screen
+			cursor.transform.position = new Vector3 (Screen.width / 2, Screen.height / 2, 0.0f);
 
-		//Get cursor control script
-		panpointmovement _cursor = cursor.GetComponent<panpointmovement> ();
+			//Get toggle component in the gameobject 
+			Toggle _toggle = toggle.GetComponent<Toggle> ();
+			//Assign toggle to its group (only one active at a time)
+			_toggle.group = toggleGroup;
 
-		//Assign a increasing number to recognise the cursor
-		_cursor.order = number;
+			//Get cursor control script
+			panpointmovement _cursor = cursor.GetComponent<panpointmovement> ();
 
-		//Check if default track number is available
-		if (trackNumbers.ContainsValue (number + 1)) {//if not available
-			//Find the highest track number and assign the next one
-			_cursor.trackNumber = (Mathf.Max (trackNumbers.Values.Max ()))+1;	
-		} else {//if available
-			//Assign the default track number to the cursor
-			_cursor.trackNumber = number + 1;
+			//Assign a increasing number to recognise the cursor
+			_cursor.order = number;
+
+			//Check if default track number is available
+			if (trackNumbers.ContainsValue (number + 1)) {//if not available
+				//Find the highest track number and assign the next one
+				_cursor.trackNumber = (Mathf.Max (trackNumbers.Values.Max ())) + 1;	
+			} else {//if available
+				//Assign the default track number to the cursor
+				_cursor.trackNumber = number + 1;
+			}
+			//Add the new cursor in the cursor dictionary
+			trackNumbers.Add (_cursor.order, _cursor.trackNumber);
+
+			//Assign all the necessary game objects to the new cursor
+			_cursor.toggle = toggle;
+			_cursor.trackInput = this.trackInput;
+			_cursor.FXInput = this.FXInput;
+			_cursor.manager = this;
+			_cursor.rawAngl = this.rawAngl;
+			_cursor.calAngl = this.calAngl;
+			_cursor.xyz = this.xyz;
+			_cursor.aziele = this.aziele;
+
+			//Activate the newly created cursor
+			StartCoroutine (ActivateNewPan (_toggle));
+
+			//Next cursor created will have another indetification number
+			number++;
 		}
-		//Add the new cursor in the cursor dictionary
-		trackNumbers.Add (_cursor.order, _cursor.trackNumber);
-
-		//Assign all the necessary game objects to the new cursor
-		_cursor.toggle = toggle;
-		_cursor.trackInput = this.trackInput;
-		_cursor.FXInput = this.FXInput;
-		_cursor.manager = this;
-		_cursor.rawAngl = this.rawAngl;
-		_cursor.calAngl = this.calAngl;
-		_cursor.xyz = this.xyz;
-		_cursor.aziele = this.aziele;
-
-		//Activate the newly created cursor
-		StartCoroutine (ActivateNewPan (_toggle));
-
-		//Next cursor created will have another indetification number
-		number++;
 	}
 
 	//Call when max pitch Input Field changed value
@@ -143,5 +171,36 @@ public class pancreation : MonoBehaviour {
 	IEnumerator ActivateNewPan(Toggle toggle){
 		yield return new WaitForEndOfFrame ();
 		toggle.isOn = true;
+	}
+
+	//Call for settings menu button
+	public void OpenSettings(){
+		if (!settingsPane.activeSelf) {
+			settingsPane.SetActive (true);
+			OSCPortf.text = OSCPort.ToString ();
+			xNumf.text = xNum.ToString ();
+			yNumf.text = yNum.ToString ();
+			zNumf.text = zNum.ToString ();
+			aNumf.text = aNum.ToString ();
+			eNumf.text = eNum.ToString ();
+			}
+	}
+
+	//Call for OK menu button
+	public void AcceptSettings(){
+		OSCPort = int.Parse (OSCPortf.text);
+		xNum = int.Parse (xNumf.text);
+		yNum = int.Parse (yNumf.text);
+		zNum = int.Parse (zNumf.text);
+		aNum = int.Parse (aNumf.text);
+		eNum = int.Parse (eNumf.text);
+		settingsPane.SetActive (false);
+		OSCHandler.Instance._clients.Remove("Reaper");
+		OSCHandler.Instance.CreateClient ("Reaper", IPAddress.Parse ("127.0.0.1"), OSCPort);  
+		}
+
+	//Call for cancel menu button
+	public void CancelSettings(){
+		settingsPane.SetActive (false);
 	}
 }

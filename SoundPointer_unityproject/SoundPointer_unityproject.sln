@@ -1,0 +1,23 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2008
+
+Project("{DBDE40C5-4ECA-831A-2F45-860AC7E90837}") = "SoundPointer_unityproject", "Assembly-CSharp.csproj", "{2F406A9B-F9F8-CE3C-B5EA-4B668F6CA910}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2F406A9B-F9F8-CE3C-B5EA-4B668F6CA910}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F406A9B-F9F8-CE3C-B5EA-4B668F6CA910}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F406A9B-F9F8-CE3C-B5EA-4B668F6CA910}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F406A9B-F9F8-CE3C-B5EA-4B668F6CA910}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+	EndGlobalSection
+EndGlobal

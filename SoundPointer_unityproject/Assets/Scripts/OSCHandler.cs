@@ -81,7 +81,7 @@ public class OSCHandler : MonoBehaviour
 	
 	#region Member Variables
 	private static OSCHandler _instance = null;
-	private Dictionary<string, ClientLog> _clients = new Dictionary<string, ClientLog>();
+	public Dictionary<string, ClientLog> _clients = new Dictionary<string, ClientLog>();
 	public Dictionary<string, ServerLog> _servers = new Dictionary<string, ServerLog>();
 	
 	private const int _loglength = 25;
@@ -104,6 +104,8 @@ public class OSCHandler : MonoBehaviour
 
         //CreateServer("AndroidPhone", 6666);
 		CreateServer ("Reaper", 9004);
+
+
 
 	}
 	
